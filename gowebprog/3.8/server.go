@@ -47,7 +47,7 @@ func main() {
 	// }
 
 	//ServeMuxのメソッドHandleFuncの定義
-	// HandlerFuncは型なのでhandlerをキャストしてる
+	// HandlerFuncは型。関数をキャストして、ServeHTTPメソッドを持つハンドルを返す
 	// func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request)) {
 	// 	mux.Handle(pattern, HandlerFunc(handler))
 	// }
