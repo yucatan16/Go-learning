@@ -19,7 +19,7 @@ func writeHeaderExample(w http.ResponseWriter, r *http.Request) {
 }
 
 func headerExample(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Location", "http://google.com")
+	w.Header().Set("Location", "http://google.com") /
 	w.WriteHeader(302)
 }
 
