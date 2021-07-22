@@ -10,7 +10,7 @@ import (
 type Post struct {
 	Id         int
 	Content    string
-	AuthorName string `db: author`
+	AuthorName string `db:"author"`
 }
 
 var Db *sqlx.DB
