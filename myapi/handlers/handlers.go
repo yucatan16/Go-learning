@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -40,8 +40,10 @@ func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
 		page = 1
 	}
 
-	resString := fmt.Sprintf("Article List (page %d)\n", page)
-	io.WriteString(w, resString)
+	log.Println(page)
+
+	articles := []models.Article{models.Article1, models.Article2}
+	json.NewEncoder(w).Encode(articles)
 }
 
 func ShowArticleHandler(w http.ResponseWriter, req *http.Request) {
@@ -49,14 +51,28 @@ func ShowArticleHandler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		http.Error(w, "Invalid query parameter", http.StatusBadRequest)
 	}
-	resString := fmt.Sprintf("Article No.%d\n", articleID)
-	io.WriteString(w, resString)
+	log.Println(articleID)
+
+	article1 := models.Article1
+	json.NewEncoder(w).Encode(article1)
 }
 
 func NiceArticleHandler(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Posting Nice...\n")
+	var reqArticle models.Article
+	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
+		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+	}
+
+	article := reqArticle
+	json.NewEncoder(w).Encode(article)
 }
 
 func CommentHandler(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Posting Comment...\n")
+	var reqComment models.Comment
+	if err := json.NewDecoder(req.Body).Decode(&reqComment); err != nil {
+		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+	}
+
+	comment := reqComment
+	json.NewEncoder(w).Encode(comment)
 }
