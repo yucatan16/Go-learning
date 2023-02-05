@@ -6,7 +6,7 @@ import (
 	"github.com/yucatty/Go-learning/myapi/models"
 )
 
-func InsertArtivle(db *sql.DB, article models.Article) (models.Article, error) {
+func InsertArticle(db *sql.DB, article models.Article) (models.Article, error) {
 	const sqlstr = `
 		insert into articles (title, contents, username, nice, created_at) values
 		(?, ?, ?, 0, now());
@@ -52,7 +52,7 @@ func SelectArticleList(db *sql.DB, page int) ([]models.Article, error) {
 	return articleArray, nil
 }
 
-func SelectArticleDetaul(db *sql.DB, articleID int) (models.Article, error) {
+func SelectArticleDetail(db *sql.DB, articleID int) (models.Article, error) {
 	const sqlStr = `
 		select *
 		from articles
@@ -80,7 +80,7 @@ func SelectArticleDetaul(db *sql.DB, articleID int) (models.Article, error) {
 
 func UpdateNiceNum(db *sql.DB, articleID int) error {
 	const sqlGetNice = `
-		select nce
+		select nice
 		from articles
 		where article_id = ?;
 	`
