@@ -7,15 +7,15 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/yucatty/Go-learning/myapi/controllers/services"
 	"github.com/yucatty/Go-learning/myapi/models"
-	"github.com/yucatty/Go-learning/myapi/services"
 )
 
 type MyAppController struct {
-	service *services.MyAppService
+	service services.MyAppServicer
 }
 
-func NewMyAppController(s *services.MyAppService) *MyAppController {
+func NewMyAppController(s services.MyAppServicer) *MyAppController {
 	return &MyAppController{service: s}
 }
 
