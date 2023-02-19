@@ -3,7 +3,7 @@ package apperrors
 type MyAppError struct {
 	ErrCode
 	Message string
-	Err     error
+	Err     error `json:"-"`
 }
 
 type ErrCode string
@@ -16,6 +16,9 @@ const (
 	NAData           ErrCode = "S003"
 	NoTargetData     ErrCode = "S004"
 	UpdateDataFailed ErrCode = "S005"
+
+	ReqBodyDecodeFailed ErrCode = "R001"
+	BadParam            ErrCode = "R002"
 )
 
 func (myErr *MyAppError) Error() string {

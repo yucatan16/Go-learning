@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/yucatty/Go-learning/myapi/apperrors"
 	"github.com/yucatty/Go-learning/myapi/controllers/services"
 	"github.com/yucatty/Go-learning/myapi/models"
 )
@@ -22,6 +23,7 @@ func NewArticleController(s services.ArticleServicer) *ArticleController {
 func (c *ArticleController) PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
+		err = apperrors.ReqBodyDecodeFailed.Wrap(err, "bad request bodey")
 		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
 
@@ -42,7 +44,8 @@ func (c *ArticleController) ListArticleHandler(w http.ResponseWriter, req *http.
 		var err error
 		page, err = strconv.Atoi(p[0])
 		if err != nil {
-			http.Error(w, "Invalid query parameter", http.StatusBadRequest)
+			err = apperrors.BadParam.Wrap(err, "queryparam must be number")
+			apperrors.ErrorHandler(w, req, err)
 			return
 		}
 	} else {
@@ -63,7 +66,8 @@ func (c *ArticleController) ListArticleHandler(w http.ResponseWriter, req *http.
 func (c *ArticleController) ShowArticleHandler(w http.ResponseWriter, req *http.Request) {
 	articleID, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
-		http.Error(w, "Invalid query parameter", http.StatusBadRequest)
+		err = apperrors.BadParam.Wrap(err, "pathparam must be number")
+		apperrors.ErrorHandler(w, req, err)
 	}
 	log.Println(articleID)
 
@@ -79,7 +83,8 @@ func (c *ArticleController) ShowArticleHandler(w http.ResponseWriter, req *http.
 func (c *ArticleController) NiceArticleHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
-		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+		err = apperrors.ReqBodyDecodeFailed.Wrap(err, "bad request bodey")
+		apperrors.ErrorHandler(w, req, err)
 	}
 
 	article, err := c.service.PostNiceService(reqArticle)
