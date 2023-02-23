@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"errors"
-	"sync"
 
 	"github.com/yucatty/Go-learning/myapi/apperrors"
 	"github.com/yucatty/Go-learning/myapi/models"
@@ -11,31 +10,41 @@ import (
 )
 
 func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) {
+	type articleResult struct {
+		article models.Article
+		err     error
+	}
+	articleChan := make(chan articleResult)
+	defer close(articleChan)
+
+	go func(ch chan<- articleResult, db *sql.DB, articleID int) {
+		article, err := repositories.SelectArticleDetail(db, articleID)
+		ch <- articleResult{article: article, err: err}
+	}(articleChan, s.db, articleID)
+
+	type commentResult struct {
+		commentList *[]models.Comment
+		err         error
+	}
+	commentChan := make(chan commentResult)
+
+	go func(ch chan<- commentResult, db *sql.DB, articleID int) {
+		commentList, err := repositories.SelectCommentList(db, articleID)
+		ch <- commentResult{commentList: &commentList, err: err}
+	}(commentChan, s.db, articleID)
+
 	var article models.Article
 	var commentList []models.Comment
 	var articleGetErr, commentGetErr error
 
-	var amu sync.Mutex
-	var cmu sync.Mutex
-
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go func(db *sql.DB, articleID int) {
-		defer wg.Done()
-		amu.Lock()
-		article, articleGetErr = repositories.SelectArticleDetail(db, articleID)
-		amu.Unlock()
-	}(s.db, articleID)
-
-	go func(db *sql.DB, articleID int) {
-		defer wg.Done()
-		cmu.Lock()
-		commentList, commentGetErr = repositories.SelectCommentList(db, articleID)
-		cmu.Unlock()
-	}(s.db, articleID)
-
-	wg.Wait()
+	for i := 0; i < 2; i++ {
+		select {
+		case ar := <-articleChan:
+			article, articleGetErr = ar.article, ar.err
+		case cr := <-commentChan:
+			commentList, commentGetErr = *cr.commentList, cr.err
+		}
+	}
 
 	if articleGetErr != nil {
 		if errors.Is(articleGetErr, sql.ErrNoRows) {
