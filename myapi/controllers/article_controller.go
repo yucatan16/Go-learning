@@ -73,7 +73,7 @@ func (c *ArticleController) ShowArticleHandler(w http.ResponseWriter, req *http.
 
 	article, err := c.service.GetArticleService(articleID)
 	if err != nil {
-		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		apperrors.ErrorHandler(w, req, err)
 		return
 	}
 
